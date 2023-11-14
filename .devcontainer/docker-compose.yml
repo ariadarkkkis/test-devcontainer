@@ -1,0 +1,53 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    volumes:
+      - ../..:/workspaces:cached
+
+    # Overrides default command so things don't shut down after the process ends.
+    command: sleep infinity
+
+    # Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+    # user: root
+
+    # Use "forwardPorts" in **devcontainer.json** to forward an app port locally.
+    # (Adding the "ports" property to this file will not forward from a Codespace.)
+
+  mariadb:
+    image: mariadb:10.11.2
+    network_mode: service:app
+    restart: unless-stopped
+    volumes:
+      - mariadb-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+    command: "--lower_case_table_names=1"
+
+  mongodb:
+    image: mongo:5.0.22
+    network_mode: service:app
+    restart: unless-stopped
+    volumes:
+      - "mongodb-data:/data/db"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: awWu5LcD2wGPFGW8
+      MONGO_INITDB_DATABASE: admin
+    command: "--auth"
+
+  redis:
+    image: bitnami/redis:5.0.14
+    network_mode: service:app
+    restart: unless-stopped
+    environment:
+      REDIS_REPLICATION_MODE: master
+      ALLOW_EMPTY_PASSWORD: "yes"
+
+volumes:
+  mariadb-data:
+  mongodb-data:
